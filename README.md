@@ -8,7 +8,7 @@ This is a new, separate implementation informed by the existing Cisco MCP instal
 
 **[Ehsan Emad](https://www.linkedin.com/in/ehsanemad)**
 
-Principal Architect | Strategic Advisory | Enterprise Network | Cybersecurity | Data Center | Agentic AI Enthusiast |  CCDE #20210029 | 4xCCIE #28551 | CISSP | 2x NSE 7 | OpenShift | Cisco Champion | Fire Jumper Elite185
+Principal Architect | Strategic Advisory | Enterprise Network | Cybersecurity | Data Center | Agentic AI Enthusiast |  CCDE #20210029 | 4xCCIE #28551 | CISSP | 2x NSE 7 | OpenShift | Cisco Champion | Fire Jumper Elite
 
 Creator of **cisco-knight-multi-dev**, **Networking With Ehsan**, and the **TechLoungeCast** podcast. This project brings practical routing and switching lab work into a reusable, multi-device MCP workflow.
 
@@ -31,7 +31,7 @@ The setup wizard guides users through enrollment in a local terminal. Instead of
 - **Connection problems caught early:** Check SSH negotiation, login, the selected Cisco platform and enable access when requested before saving a device.
 - **Compatibility with older lab equipment:** When modern SSH negotiation fails, the wizard offers a legacy compatibility retry for that device without changing other devices' SSH profiles.
 - **Device identity verification:** Review and trust a new SSH host-key fingerprint during enrollment. Later connections reject a changed key instead of silently accepting it.
-- **Consistent setup across operating systems:** The Python wizard and launchers are designed for Windows, Linux and macOS, with credential-storage options suited to each environment. Windows has been validated end-to-end with Codex, including device enrollment, connection testing, MCP discovery and a live `show version` call. Linux native validation is still pending.
+- **Consistent setup across operating systems:** The Python wizard and launchers are designed for Windows, Linux and macOS, with credential-storage options suited to each environment. Windows and macOS have both been validated end-to-end with Codex, including clean installation, device enrollment, connection testing, MCP discovery and live commands. Linux native validation is still pending.
 - **Simpler maintenance and client setup:** List devices, test connections, remove devices and print the MCP client configuration from the same menu.
 
 The wizard prepares and validates device access; it does not configure routing or switching features during enrollment. Once devices are enrolled, the MCP tools use their names for individual commands and multi-device read-only checks.
@@ -49,6 +49,20 @@ The installer is the folder you downloaded or extracted. You do not need to open
 5. When the menu appears, choose **1. Add device**.
 
 If Python is not installed, install Python 3.10 or newer from [python.org](https://www.python.org/downloads/macos/) and double-click the launcher again.
+
+### macOS + Codex: first-time checklist
+
+1. Extract the ZIP and open the `cisco-knight-multi-dev` folder.
+2. Run **`setup.command`** or **`Add Network Device.command`**. The first run creates `.venv`, installs dependencies and opens the setup wizard.
+3. Choose **1. Add device**, complete enrollment, and verify the SSH fingerprint belongs to the intended device.
+4. Choose **3. Test device connection** and confirm the live test succeeds.
+5. Choose **5. Show MCP client configuration** and copy the generated Codex TOML block.
+6. Open `~/.codex/config.toml`. Replace any older `cisco-knight-multi-dev` block that points to a previous installation path or package name; do not keep two blocks with the same MCP server name.
+7. Save the generated `[mcp_servers.cisco-knight-multi-dev]` block exactly as printed and fully restart Codex.
+8. Ask Codex: **“List my enrolled devices using cisco-knight-multi-dev.”**
+9. Verify live device access with a read-only command such as **“Using cisco-knight-multi-dev, run show inventory on all enrolled devices.”**
+
+The validated macOS data directory is `~/Library/Application Support/cisco-knight-multi-dev`. Keep the generated path unchanged because spaces in `Application Support` are already handled correctly by the TOML argument list.
 
 ### Windows
 
@@ -219,7 +233,8 @@ Configuration tools: `cisco_config_batch`, `cisco_interface`, `cisco_vlan`, `cis
 - Multi-device reads are sequential and return per-device successes/failures.
 - 34 automated tests pass locally, including a real MCP stdio client/server exchange. The setup menu also passed a terminal smoke test.
 - Windows has been validated end-to-end with Python 3.13, the setup wizard, per-user application data, Codex MCP configuration, **Ask for approval** permission mode, enrolled-device discovery and a live `show version` call against a Cisco IOS switch.
-- Live read-only validation against the existing lab switch required the legacy SSH profile and negotiated an RSA host key, AES128-CBC and HMAC-SHA1; version and CDP reads succeeded. Native macOS/Linux execution and NX-OS/IOS-XR hardware validation are still pending for this renamed release.
+- macOS has been validated end-to-end with the renamed package, `.venv` installation, the setup wizard, macOS Keychain-backed credential storage, per-user application data under `~/Library/Application Support/cisco-knight-multi-dev`, Codex MCP configuration, enrolled-device discovery and live `show inventory` execution against three Cisco IOS devices.
+- Live read-only validation against older lab switches used the legacy SSH profile. Windows validation included a negotiated RSA host key, AES128-CBC and HMAC-SHA1; version and CDP reads succeeded. macOS multi-device inventory reads also succeeded. Linux native execution and NX-OS/IOS-XR hardware validation are still pending for this renamed release.
 - A GitHub Actions matrix is included for Windows, Linux and macOS; it has not run remotely yet. It tests mocked networking/storage and the actual MCP stdio exchange, not platform credential-store integration.
 
 Run tests after installing the project:
