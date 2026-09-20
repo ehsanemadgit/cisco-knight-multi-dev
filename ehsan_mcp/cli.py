@@ -5,7 +5,7 @@ from .inventory import data_dir
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Cisco Knight Multi-Device MCP")
+    parser = argparse.ArgumentParser(description="Ehsan Multi R-and-S MCP")
     parser.add_argument("--data-dir", help="Inventory, encrypted vault and known_hosts directory")
     commands = parser.add_subparsers(dest="command")
     commands.add_parser("setup", help="Interactive device enrollment menu (default)")

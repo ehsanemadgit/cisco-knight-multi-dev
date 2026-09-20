@@ -15,11 +15,11 @@ def main():
     if not python.exists():
         print("Creating a local Python environment…", flush=True)
         venv.EnvBuilder(with_pip=True).create(environment)
-    ready = subprocess.run([str(python), "-c", "import cisco_knight_mcp, netmiko, keyring, mcp"], capture_output=True)
+    ready = subprocess.run([str(python), "-c", "import ehsan_mcp, netmiko, keyring, mcp"], capture_output=True)
     if ready.returncode:
-        print("Installing Cisco Knight Multi-Device MCP and dependencies…", flush=True)
+        print("Installing Ehsan Multi R-and-S MCP and dependencies…", flush=True)
         subprocess.run([str(python), "-m", "pip", "install", "-e", str(root)], check=True)
-    subprocess.run([str(python), "-m", "cisco_knight_mcp", *sys.argv[1:]], check=True)
+    subprocess.run([str(python), "-m", "ehsan_mcp", *sys.argv[1:]], check=True)
 
 
 if __name__ == "__main__":

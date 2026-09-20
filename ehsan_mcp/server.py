@@ -173,9 +173,9 @@ class Engine:
             return {"devices": [{"name": d.name, "host": d.host, "port": d.port, "platform": d.platform, "ssh_profile": d.ssh_profile, "session_cached": d.name in self.sessions.connections} for d in self.inventory.devices().values()]}
         if name == "add_device":
             import sys
-            return {"message": "Run the setup wizard in a local terminal. Choose 1 to add a device. Passwords are entered there with hidden input.", "executable": sys.executable, "arguments": ["-m", "cisco_knight_mcp", "--data-dir", str(self.inventory.root.resolve()), "setup"]}
+            return {"message": "Run the setup wizard in a local terminal. Choose 1 to add a device. Passwords are entered there with hidden input.", "executable": sys.executable, "arguments": ["-m", "ehsan_mcp", "--data-dir", str(self.inventory.root.resolve()), "setup"]}
         if name == "cisco_stats":
-            return {"server": "Cisco Knight Multi-Device MCP", "version": __version__, "tools_count": len(self.schemas), "devices_count": len(self.inventory.devices()), "cached_sessions": list(self.sessions.connections)}
+            return {"server": "Ehsan Multi R-and-S MCP", "version": __version__, "tools_count": len(self.schemas), "devices_count": len(self.inventory.devices()), "cached_sessions": list(self.sessions.connections)}
         if name in {"show_many", "neighbors"}:
             # Sequential calls avoid flooding a small lab or overwhelming its AAA server.
             commands = [show_command(args["command"])] if name == "show_many" else ["show cdp neighbors", "show lldp neighbors"]

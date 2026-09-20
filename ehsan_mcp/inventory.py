@@ -12,7 +12,7 @@ PLATFORMS = {"cisco_ios": "Cisco IOS / IOS-XE", "cisco_nxos": "Cisco NX-OS", "ci
 
 
 def data_dir(value=None):
-    return Path(value or os.environ.get("CISCO_KNIGHT_MCP_DATA_DIR") or user_config_path("cisco-knight-multi-dev", appauthor=False))
+    return Path(value or os.environ.get("EHSAN_MCP_DATA_DIR") or user_config_path("ehsan-multi-r-and-s-mcp", appauthor=False))
 
 
 def atomic_write(path, text):

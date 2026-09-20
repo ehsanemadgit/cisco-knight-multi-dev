@@ -7,11 +7,11 @@ from unittest.mock import MagicMock, patch
 import paramiko
 import pytest
 
-from cisco_knight_mcp.inventory import Device, Inventory
-from cisco_knight_mcp.credentials import Credentials, native_keyring
-from cisco_knight_mcp.server import Engine, tools
-from cisco_knight_mcp.ssh import pin_key, verify_known, disabled
-from cisco_knight_mcp.wizard import add_device
+from ehsan_mcp.inventory import Device, Inventory
+from ehsan_mcp.credentials import Credentials, native_keyring
+from ehsan_mcp.server import Engine, tools
+from ehsan_mcp.ssh import pin_key, verify_known, disabled
+from ehsan_mcp.wizard import add_device
 
 
 def device(name="sw1", **kwargs):
@@ -53,13 +53,13 @@ def test_invalid_device(kwargs):
 
 
 def test_encrypted_vault(tmp_path, monkeypatch):
-    monkeypatch.setenv("CISCO_KNIGHT_MCP_MASTER_PASSWORD", "long-test-master-password")
+    monkeypatch.setenv("EHSAN_MCP_MASTER_PASSWORD", "long-test-master-password")
     store = Credentials(tmp_path)
     d = replace(device(), credential_store="encrypted", enable_required=True)
     store.put(d, "secret-ssh-password", "secret-enable-password")
     assert "secret-ssh-password" not in (tmp_path / "credentials.enc.json").read_text()
     assert Credentials(tmp_path).get(d)["enable"] == "secret-enable-password"
-    monkeypatch.setenv("CISCO_KNIGHT_MCP_MASTER_PASSWORD", "wrong-master-password")
+    monkeypatch.setenv("EHSAN_MCP_MASTER_PASSWORD", "wrong-master-password")
     with pytest.raises(ValueError, match="Wrong master"):
         Credentials(tmp_path).get(d)
     store.delete(d)
@@ -68,7 +68,7 @@ def test_encrypted_vault(tmp_path, monkeypatch):
 
 
 def test_reject_plaintext_keyring():
-    with patch("cisco_knight_mcp.credentials.keyring.get_keyring", return_value=MagicMock()):
+    with patch("ehsan_mcp.credentials.keyring.get_keyring", return_value=MagicMock()):
         with pytest.raises(ValueError, match="No supported"):
             native_keyring()
 
@@ -134,9 +134,9 @@ def test_preview_and_confirmation_bound_to_device_and_commands(engine):
 
 def test_token_expires(engine):
     args = {"device": "sw1", "commands": ["hostname test"]}
-    with patch("cisco_knight_mcp.server.time.monotonic", return_value=0):
+    with patch("ehsan_mcp.server.time.monotonic", return_value=0):
         token = engine.call("cisco_config_batch", args)["confirmation_token"]
-    with patch("cisco_knight_mcp.server.time.monotonic", return_value=301):
+    with patch("ehsan_mcp.server.time.monotonic", return_value=301):
         assert not engine.call("cisco_config_batch", {**args, "confirmed": True, "confirmation_token": token})["success"]
     engine.sessions.get.assert_not_called()
 
@@ -180,7 +180,7 @@ def test_enrollment_success(tmp_path):
     conn.send_command.return_value = "Cisco IOS Software, version test"
     key = paramiko.RSAKey.generate(2048)
     answers = iter(["sw1", "192.0.2.1", "22", "admin", "1", "3"])
-    with patch("cisco_knight_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("cisco_knight_mcp.wizard.yes", side_effect=[True, True, True]), patch("cisco_knight_mcp.wizard.private_password", side_effect=["ssh-secret", "enable-secret"]), patch("cisco_knight_mcp.wizard.probe", return_value=(key, {"profile": "modern"})), patch("cisco_knight_mcp.wizard.connect", return_value=conn), patch("cisco_knight_mcp.wizard.native_keyring", side_effect=ValueError()):
+    with patch("ehsan_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("ehsan_mcp.wizard.yes", side_effect=[True, True, True]), patch("ehsan_mcp.wizard.private_password", side_effect=["ssh-secret", "enable-secret"]), patch("ehsan_mcp.wizard.probe", return_value=(key, {"profile": "modern"})), patch("ehsan_mcp.wizard.connect", return_value=conn), patch("ehsan_mcp.wizard.native_keyring", side_effect=ValueError()):
         add_device(inv, store)
     assert inv.get("sw1").enable_required
     assert store.get(inv.get("sw1"))["enable"] == "enable-secret"
@@ -192,7 +192,7 @@ def test_enrollment_failed_login_does_not_save(tmp_path):
     inv = Inventory(tmp_path)
     answers = iter(["sw1", "192.0.2.1", "22", "admin", "1"])
     key = paramiko.RSAKey.generate(2048)
-    with patch("cisco_knight_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("cisco_knight_mcp.wizard.yes", side_effect=[False, True]), patch("cisco_knight_mcp.wizard.private_password", return_value="hidden"), patch("cisco_knight_mcp.wizard.probe", return_value=(key, {})), patch("cisco_knight_mcp.wizard.connect", side_effect=RuntimeError("login failed")):
+    with patch("ehsan_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("ehsan_mcp.wizard.yes", side_effect=[False, True]), patch("ehsan_mcp.wizard.private_password", return_value="hidden"), patch("ehsan_mcp.wizard.probe", return_value=(key, {})), patch("ehsan_mcp.wizard.connect", side_effect=RuntimeError("login failed")):
         with pytest.raises(RuntimeError):
             add_device(inv, Credentials(tmp_path))
     assert not inv.devices()
@@ -202,20 +202,20 @@ def test_enrollment_failed_login_does_not_save(tmp_path):
 def test_legacy_retry_requires_opt_in(tmp_path):
     inv = Inventory(tmp_path)
     answers = iter(["sw1", "192.0.2.1", "22", "admin", "1"])
-    with patch("cisco_knight_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("cisco_knight_mcp.wizard.yes", side_effect=[False, False]), patch("cisco_knight_mcp.wizard.private_password", return_value="hidden"), patch("cisco_knight_mcp.wizard.probe", side_effect=paramiko.ssh_exception.IncompatiblePeer("no acceptable kex")) as probe_mock:
+    with patch("ehsan_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("ehsan_mcp.wizard.yes", side_effect=[False, False]), patch("ehsan_mcp.wizard.private_password", return_value="hidden"), patch("ehsan_mcp.wizard.probe", side_effect=paramiko.ssh_exception.IncompatiblePeer("no acceptable kex")) as probe_mock:
         add_device(inv, Credentials(tmp_path))
     assert probe_mock.call_count == 1
     assert not inv.devices()
 
 
 def test_enable_failure_closes_session(tmp_path):
-    from cisco_knight_mcp.ssh import connect
+    from ehsan_mcp.ssh import connect
     known = tmp_path / "known_hosts"
     known.write_text("")
     d = device(enable_required=True)
     conn = MagicMock()
     conn.check_enable_mode.return_value = False
-    with patch("cisco_knight_mcp.ssh.ConnectHandler", return_value=conn) as factory:
+    with patch("ehsan_mcp.ssh.ConnectHandler", return_value=conn) as factory:
         with pytest.raises(RuntimeError, match="enable validation failed"):
             connect(d, {"password": "ssh-secret", "enable": "enable-secret"}, known)
     conn.enable.assert_called_once()
@@ -245,7 +245,7 @@ def test_inventory_change_invalidates_confirmation(engine):
 def test_wizard_declined_host_key_does_not_save(tmp_path):
     inv = Inventory(tmp_path)
     answers = iter(["sw1", "192.0.2.1", "22", "admin", "1"])
-    with patch("cisco_knight_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("cisco_knight_mcp.wizard.yes", side_effect=[False, False]), patch("cisco_knight_mcp.wizard.private_password", return_value="hidden"), patch("cisco_knight_mcp.wizard.probe", return_value=(paramiko.RSAKey.generate(2048), {})), patch("cisco_knight_mcp.wizard.connect") as connect_mock:
+    with patch("ehsan_mcp.wizard.ask", side_effect=lambda *a: next(answers)), patch("ehsan_mcp.wizard.yes", side_effect=[False, False]), patch("ehsan_mcp.wizard.private_password", return_value="hidden"), patch("ehsan_mcp.wizard.probe", return_value=(paramiko.RSAKey.generate(2048), {})), patch("ehsan_mcp.wizard.connect") as connect_mock:
         add_device(inv, Credentials(tmp_path))
     connect_mock.assert_not_called()
     assert not inv.devices()

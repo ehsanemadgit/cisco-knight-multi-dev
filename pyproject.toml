@@ -3,17 +3,17 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cisco-knight-multi-dev"
+name = "ehsan-multi-r-and-s-mcp"
 version = "0.1.0"
-description = "Cisco Knight Multi-Device MCP: multi-device routing and switching with a local enrollment wizard"
+description = "Ehsan Multi R-and-S MCP: multi-device routing and switching with a local enrollment wizard"
 requires-python = ">=3.10"
 dependencies = ["netmiko>=4.4,<5", "paramiko>=3.5,<5", "keyring>=25,<26", "cryptography>=43", "platformdirs>=4,<5", "mcp>=1.10,<2", "jsonschema>=4.20,<5"]
 
 [project.scripts]
-cisco-knight-multi-dev = "cisco_knight_mcp.cli:main"
+ehsan-mcp = "ehsan_mcp.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["cisco_knight_mcp*"]
+include = ["ehsan_mcp*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

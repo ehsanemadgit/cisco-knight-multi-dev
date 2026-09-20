@@ -111,10 +111,10 @@ def add_device(inventory, credentials):
         raise
     print(f"Added {device.name}. Passwords are not stored in devices.json.")
     if mode == "3":
-        print("Start the MCP server in a terminal with: cisco-knight-multi-dev serve --prompt-secrets")
+        print("Start the MCP server in a terminal with: ehsan-mcp serve --prompt-secrets")
     if mode == "2":
-        print("Start in a terminal with: cisco-knight-multi-dev serve --unlock-vault")
-        print("Desktop MCP launchers need CISCO_KNIGHT_MCP_MASTER_PASSWORD injected by a secret manager; prefer OS storage for unattended use.")
+        print("Start in a terminal with: ehsan-mcp serve --unlock-vault")
+        print("Desktop MCP launchers need EHSAN_MCP_MASTER_PASSWORD injected by a secret manager; prefer OS storage for unattended use.")
 
 
 def list_devices(inventory):
@@ -141,7 +141,7 @@ def test_device(inventory, credentials):
 
 
 def client_config(root):
-    args = ["-m", "cisco_knight_mcp", "--data-dir", str(root.resolve()), "serve"]
+    args = ["-m", "ehsan_mcp", "--data-dir", str(root.resolve()), "serve"]
     print(json.dumps({"mcpServers": {"cisco-knight-multi-dev": {"command": sys.executable, "args": args}}}, indent=2))
     print("\nCodex TOML configuration:")
     print('[mcp_servers.cisco-knight-multi-dev]')
@@ -153,7 +153,7 @@ def client_config(root):
 def run(root):
     inventory = Inventory(root)
     credentials = Credentials(root, interactive=True)
-    print("\nCisco Knight Multi-Device MCP — Device Setup")
+    print("\nEhsan Multi R-and-S MCP — Device Setup")
     print(f"Inventory: {inventory.path}")
     while True:
         print("\n1. Add device\n2. List devices\n3. Test device connection\n4. Remove device\n5. Show MCP client configuration\n0. Exit")

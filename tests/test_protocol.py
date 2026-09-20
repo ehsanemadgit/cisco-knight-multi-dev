@@ -8,7 +8,7 @@ from mcp.client.stdio import stdio_client
 
 def test_real_mcp_stdio(tmp_path):
     async def check():
-        params = StdioServerParameters(command=sys.executable, args=["-m", "cisco_knight_mcp", "--data-dir", str(tmp_path), "serve"])
+        params = StdioServerParameters(command=sys.executable, args=["-m", "ehsan_mcp", "--data-dir", str(tmp_path), "serve"])
         async with stdio_client(params) as (read, write):
             async with ClientSession(read, write) as client:
                 initialized = await client.initialize()

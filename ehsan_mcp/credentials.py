@@ -18,7 +18,7 @@ def hidden(prompt):
         return getpass.getpass(prompt, stream=sys.stderr)
 
 
-SERVICE = "cisco-knight-multi-dev"
+SERVICE = "ehsan-multi-r-and-s-mcp"
 TRUSTED_BACKENDS = {"keyring.backends.macOS", "keyring.backends.Windows", "keyring.backends.SecretService", "keyring.backends.kwallet"}
 
 
@@ -36,12 +36,12 @@ class Credentials:
         self.root = root
         self.interactive = interactive
         self.session = {}
-        self.master = os.environ.get("CISCO_KNIGHT_MCP_MASTER_PASSWORD")
+        self.master = os.environ.get("EHSAN_MCP_MASTER_PASSWORD")
 
     def _master(self, new=False):
         if not self.master:
             if not self.interactive:
-                raise ValueError("Encrypted vault is locked. Launch with --unlock-vault in a terminal or provide CISCO_KNIGHT_MCP_MASTER_PASSWORD via your secret manager.")
+                raise ValueError("Encrypted vault is locked. Launch with --unlock-vault in a terminal or provide EHSAN_MCP_MASTER_PASSWORD via your secret manager.")
             master = hidden("Vault master password: ")
             if len(master) < 12:
                 raise ValueError("Use a master password of at least 12 characters.")

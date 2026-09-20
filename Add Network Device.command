@@ -9,4 +9,4 @@ if [ ! -x "$PYTHON" ]; then
   exec /usr/bin/env python3 "$MCP_ROOT/setup_wizard.py" setup
 fi
 
-exec "$PYTHON" -m cisco_knight_mcp setup
+exec "$PYTHON" -m ehsan_mcp --data-dir "$MCP_ROOT/runtime" setup
